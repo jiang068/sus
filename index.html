@@ -10,27 +10,16 @@
 <body>
     <script>
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', 'links.txt', true);
+        xhr.open('GET', 'https://jiang068.github.io/sus/links.json', true);
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
-                    const fileContent = xhr.responseText;
-                    const lines = fileContent.split('\n');
-                    const shortLinkMapping = {};
-
-                    lines.forEach(line => {
-                        const [shortLink, longLink] = line.split(',');
-                        if (shortLink && longLink) {
-                            shortLinkMapping[shortLink.trim()] = longLink.trim();
-                        }
-                    });
-
+                    const jsonResponse = JSON.parse(xhr.responseText);
                     const currentPath = window.location.pathname;
                     const shortLink = currentPath.replace(/^\//, '');
-
-                    const longLink = shortLinkMapping[shortLink];
-
+                    const longLink = jsonResponse[shortLink];
+        
                     if (longLink) {
                         window.location.href = longLink;
                     } else {
