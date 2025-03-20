@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>forwarding</title>
+</head>
+
+<body>
+    <script>
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'links.txt', true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    const fileContent = xhr.responseText;
+                    const lines = fileContent.split('\n');
+                    const shortLinkMapping = {};
+
+                    lines.forEach(line => {
+                        const [shortLink, longLink] = line.split(',');
+                        if (shortLink && longLink) {
+                            shortLinkMapping[shortLink.trim()] = longLink.trim();
+                        }
+                    });
+
+                    const currentPath = window.location.pathname;
+                    const shortLink = currentPath.replace(/^\//, '');
+
+                    const longLink = shortLinkMapping[shortLink];
+
+                    if (longLink) {
+                        window.location.href = longLink;
+                    } else {
+                        document.write("404 Not Found");
+                    }
+                } else {
+                    document.write("File off");
+                }
+            }
+        };
+
+        xhr.send();
+    </script>
+</body>
+
+</html>
