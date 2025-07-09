@@ -3,7 +3,7 @@ name: Deploy Short Link Service to Pages
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
   workflow_dispatch:
 
 # GitHub Pages 部署权限
