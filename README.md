@@ -15,6 +15,7 @@
 
 ### 1. 部署文件
 
+#### 标准部署（根目录）
 将以下文件上传到你的网站根目录：
 
 ```
@@ -23,6 +24,50 @@
 ├── style.css       # 样式文件
 └── links.txt       # 链接映射文件
 ```
+
+#### WordPress环境部署
+如果在WordPress环境中部署，需要：
+1. 将项目文件放在子目录（如 `t` 目录）
+2. 修改WordPress根目录的 `.htaccess` 文件
+
+**WordPress多站点网络配置：**
+```apache
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+
+# 短链接系统规则（添加在WordPress规则之前）
+# 如果请求的是t目录下的具体文件，直接访问
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} ^/t/
+RewriteRule ^.*$ - [L]
+
+# 如果请求的是t目录下的目录，直接访问
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} ^/t/
+RewriteRule ^.*$ - [L]
+
+# 对于t目录下的其他请求（短链接），重定向到t/index.html
+RewriteRule ^t/(.*)$ t/index.html [L]
+
+# 以下是原有的WordPress多站点规则
+RewriteRule ^index\.php$ - [L]
+
+# add a trailing slash to /wp-admin
+RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ $1wp-admin/ [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]
+RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ $2 [L]
+RewriteRule . index.php [L]
+```
+
+**⚠️ 重要提示：**
+- 短链接规则必须放在WordPress规则之前
+- 将 `t` 替换为你的实际目录名
+- 备份原有的 `.htaccess` 文件
 
 ### 2. 配置链接映射
 
@@ -36,7 +81,11 @@ gi,https://example.com/very-long-url
 
 ### 3. 访问短链接
 
-访问 `https://yourdomain.com/abc` 即可跳转到对应的长链接。
+**标准部署（根目录）：**
+- 访问 `https://yourdomain.com/` 进入主页，系统会自动处理短链接
+
+**WordPress环境（子目录）：**
+- `https://yourdomain.com/t/abc` → 跳转到对应链接
 
 ## 📖 使用说明
 
@@ -106,10 +155,18 @@ createErrorPage("被你玩坏了！去找我主人！");    // 服务器错误
 
 ## 🚨 注意事项
 
+### 通用注意事项
 1. **安全性**：不要在链接映射文件中包含敏感信息
 2. **性能**：链接映射文件不宜过大
 3. **维护**：定期检查和清理无效的链接映射
 4. **备份**：建议定期备份链接映射文件
+
+### WordPress环境特殊注意事项
+1. **规则顺序**：短链接重写规则必须放在WordPress规则之前
+2. **缓存清理**：修改 `.htaccess` 后需要清除WordPress缓存
+3. **权限检查**：确保项目目录有正确的读取权限
+4. **插件冲突**：某些缓存或SEO插件可能影响重写规则
+5. **多站点网络**：使用上述完整配置适用于WordPress多站点网络
 
 ---
 
