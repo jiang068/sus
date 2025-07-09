@@ -1,3 +1,6 @@
+// 倒计时配置
+const COUNTDOWN_SECONDS = 5;
+
 // 创建跳转页面的函数
 function createRedirectPage(longLink, shortLink) {
     // 清空body内容
@@ -18,7 +21,7 @@ function createRedirectPage(longLink, shortLink) {
         <div class="short-link">短链接: ${shortLink}</div>
         <div style="color: #333; font-size: 14px; margin-bottom: 15px; font-weight: bold;">您将会跳转到:</div>
         <div class="long-link">${longLink}</div>
-        <a href="${longLink}" class="button" style="text-decoration: none; display: inline-block; pointer-events: none; background: #ccc;" id="jump-button">立即跳转 (<span id="jump-countdown">5</span>)</a>
+        <a href="${longLink}" class="button" style="text-decoration: none; display: inline-block; pointer-events: none; background: #ccc;" id="jump-button">立即跳转 (<span id="jump-countdown">${COUNTDOWN_SECONDS}</span>)</a>
         <button class="button copy-button" onclick="copyLink('${longLink.replace(/'/g, "\\'")}');">复制链接</button>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
@@ -39,7 +42,7 @@ function createRedirectPage(longLink, shortLink) {
 
 // 倒计时函数
 function startCountdown(link) {
-    let countdown = 5;
+    let countdown = COUNTDOWN_SECONDS;
     const progressFill = document.getElementById('progress-fill');
     const jumpButton = document.getElementById('jump-button');
     const jumpCountdown = document.getElementById('jump-countdown');
@@ -53,7 +56,7 @@ function startCountdown(link) {
         if (countdown > 0) {
             jumpCountdown.textContent = countdown;
             // 更新进度条
-            progressFill.style.width = (countdown / 5 * 100) + '%';
+            progressFill.style.width = (countdown / COUNTDOWN_SECONDS * 100) + '%';
         } else {
             clearInterval(countdownInterval);
             progressFill.style.width = '0%';
