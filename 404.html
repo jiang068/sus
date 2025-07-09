@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+(function(){
+var p = location.pathname.split('/').filter(s => s);
+if (p.length > 1) sessionStorage.setItem('sus_redirect_path', p.slice(1).join('/'));
+location.replace(location.origin + '/' + (p[0] || ''));
+})();
+</script>
+</head>
+</html>
