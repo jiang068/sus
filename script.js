@@ -3,18 +3,15 @@ const COUNTDOWN_SECONDS = 5;
 
 // GitHub Pages 环境检测
 function isGitHubPages() {
-    return window.location.hostname.includes('github.io') || 
-           window.location.hostname.includes('github.com');
+    return window.location.hostname.includes('github.io');
 }
 
-// 获取基础路径（适配GitHub Pages项目路径）
+// 获取基础路径
 function getBasePath() {
     if (isGitHubPages()) {
         const pathname = window.location.pathname;
         const parts = pathname.split('/').filter(p => p);
         if (parts.length > 0) {
-            // GitHub Pages项目通常格式为 /username.github.io/project-name/
-            // 或者 /username/project-name/（如果是项目页面）
             return '/' + parts[0] + '/';
         }
     }
@@ -211,50 +208,12 @@ function createErrorPage(errorMessage) {
     document.body.appendChild(container);
 }
 
-// 创建欢迎页面的函数
-function createWelcomePage() {
-    // 清空body内容
-    document.body.innerHTML = '';
-    
-    // 设置页面标题
-    document.title = '🔗 短链接跳转服务';
-    
-    // 创建页面内容
-    const container = document.createElement('div');
-    container.className = 'container';
-    
-    container.innerHTML = `
-        <div class="title">🔗 短链接跳转服务</div>
-        <div style="color: #666; font-size: 16px; margin-bottom: 30px; line-height: 1.6;">
-            欢迎使用我们的短链接跳转服务！<br>
-            在地址栏后面添加短链接代码即可快速跳转。
-        </div>
-        <div style="color: #333; font-size: 14px; margin-bottom: 20px;">
-            <strong>使用方法：</strong><br>
-            <code style="background: #f5f5f5; padding: 5px 10px; border-radius: 4px; font-family: monospace;">
-                ${window.location.origin}${window.location.pathname}短链接代码
-            </code>
-        </div>
-        <div style="color: #333; font-size: 14px; margin-bottom: 20px;">
-            <strong>示例：</strong><br>
-            <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin: 10px 0;">
-                ${window.location.origin}${window.location.pathname}abc → 跳转到对应链接
-            </div>
-        </div>
-        <div style="color: #999; font-size: 12px; margin-top: 30px;">
-            💡 如果您是站点管理员，请在 links.txt 文件中配置短链接映射关系
-        </div>
-    `;
-    
-    document.body.appendChild(container);
-}
-
 // 主程序逻辑
 const xhr = new XMLHttpRequest();
 
 // 获取短链接名称
 function getShortLinkName() {
-    // 首先检查是否有从404页面重定向过来的路径信息
+    // 检查404页面重定向
     const redirectPath = sessionStorage.getItem('sus_redirect_path');
     if (redirectPath) {
         sessionStorage.removeItem('sus_redirect_path');
@@ -264,25 +223,18 @@ function getShortLinkName() {
     const pathname = window.location.pathname;
     const hash = window.location.hash.replace('#', '');
     
-    // 如果URL中有hash，优先使用hash作为短链接
-    if (hash && hash !== '') {
-        return hash;
-    }
+    if (hash) return hash;
     
-    // 移除基础路径
     const basePath = getBasePath();
     let shortLink = pathname.replace(basePath, '').replace(/^\/+|\/+$/g, '');
     
-    // 如果是GitHub Pages，可能需要从路径中提取短链接
     if (isGitHubPages()) {
         const parts = pathname.split('/').filter(p => p);
         if (parts.length >= 2) {
-            // 通常第一个部分是用户名或项目名，第二个开始才是短链接
             return parts.slice(1).join('/') || parts[parts.length - 1];
         }
     }
     
-    // 如果路径包含斜杠，取最后一部分
     if (shortLink.includes('/')) {
         const parts = shortLink.split('/');
         return parts[parts.length - 1];
@@ -294,15 +246,7 @@ function getShortLinkName() {
 // 文件名Base64加密
 function getEncryptedFileName() {
     const encryptedName = "bGlua3MudHh0";
-    const basePath = getBasePath();
-    const fileName = atob(encryptedName);
-    
-    // 如果是GitHub Pages，确保使用正确的相对路径
-    if (isGitHubPages()) {
-        return './' + fileName;
-    }
-    
-    return fileName;
+    return isGitHubPages() ? './' + atob(encryptedName) : atob(encryptedName);
 }
 
 xhr.open('GET', getEncryptedFileName(), true);
@@ -325,13 +269,6 @@ xhr.onreadystatechange = function () {
             });
             
             const shortLink = getShortLinkName();
-            
-            // 如果没有短链接（用户直接访问主页），显示欢迎页面
-            if (!shortLink || shortLink === '' || shortLink === 'index.html') {
-                createWelcomePage();
-                return;
-            }
-            
             const longLink = shortLinkMapping[shortLink];
             
             if (longLink) {
