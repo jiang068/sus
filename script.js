@@ -24,8 +24,10 @@ function createRedirectPage(longLink, shortLink) {
             <div class="progress-fill" id="progress-fill"></div>
         </div>
         <div class="safari-notice">
-            <strong>📢 Safari 浏览器提示：</strong><br>
-            如果您使用 Safari 浏览器访问较长的链接时遇到问题，建议您手动复制链接后粘贴到地址栏访问，以确保链接完整性。
+            <strong>📢 Safari 浏览器提示：</strong>
+            <div style="text-align: left; margin-top: 5px;">
+                如果您使用 Safari 浏览器访问较长的链接时遇到问题，建议您手动复制链接后粘贴到地址栏访问，以确保链接完整性。
+            </div>
         </div>
     `;
     
