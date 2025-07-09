@@ -198,7 +198,7 @@ function getEncryptedFileName() {
     return atob(encryptedName);
 }
 
-xhr.open('GET', protocol + '//' + window.location.host + '/' + getEncryptedFileName(), true);
+xhr.open('GET', getEncryptedFileName(), true);
 
 xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
