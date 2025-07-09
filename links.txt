@@ -1,0 +1,5 @@
+abc,https://www.bilibili.com
+npm,https://www.npmjs.com
+vsc,https://code.visualstudio.com
+mdn,https://developer.mozilla.org
+so,https://stackoverflow.com
