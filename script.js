@@ -1,5 +1,5 @@
 // 倒计时配置
-const COUNTDOWN_SECONDS = 5;
+const COUNTDOWN_SECONDS = 3;
 
 // GitHub Pages 环境检测
 function isGitHubPages() {

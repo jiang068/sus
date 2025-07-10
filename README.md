@@ -13,72 +13,126 @@
 
 ## 🚀 快速开始
 
-### 1. 部署文件
+### 1. 部署方式
 
-#### GitHub Pages 部署（推荐）
-本项目已针对 GitHub Pages 进行优化，支持一键部署：
+## 🖥️ 标准服务器部署（推荐）
 
-1. **Fork 或创建仓库**：将项目上传到 GitHub 仓库
-2. **启用 Pages**：在仓库设置中启用 GitHub Pages
-3. **配置链接**：编辑 `links.txt` 文件添加你的短链接映射
-4. **开始使用**：访问 `https://用户名.github.io/仓库名/短链接` 即可跳转
+### 适用场景
+- 自有服务器或VPS
+- 虚拟主机
+- 现代静态托管服务（Vercel、Netlify、Cloudflare Pages等）
 
-详细部署指南请查看：[GitHub Pages 部署指南](GITHUB_PAGES.md)
+### 部署步骤
 
-#### 标准部署（根目录）
-将以下文件上传到你的网站根目录：
+1. **准备服务器环境**
+   - 确保服务器支持静态文件托管
+   - 建议支持自定义404页面
 
-```
-├── index.html      # 主页面
-├── script.js       # 核心逻辑
-├── style.css       # 样式文件
-├── links.txt       # 链接映射文件
-└── 404.html        # GitHub Pages 404处理（可选）
-```
+2. **上传文件到根目录**
+   将以下文件上传到网站根目录：
+   ```
+   ├── index.html      # 主页面
+   ├── script.js       # 核心逻辑
+   ├── style.css       # 样式文件
+   └── links.txt       # 链接映射文件
+   ```
 
-#### WordPress环境部署
-如果在WordPress环境中部署，需要：
-1. 将项目文件放在子目录（如 `t` 目录）
-2. 修改WordPress根目录的 `.htaccess` 文件
+3. **配置服务器（根据环境选择）**
+   
+   **方式A：现代托管服务（推荐）**
+   - 大多数现代托管服务自动支持SPA路由
+   - 包括：Vercel、Netlify、Cloudflare Pages等
+   - 无需任何配置，直接上传4个文件即可
+   
+   **方式B：传统服务器需要配置**
+   
+   **Apache服务器(.htaccess)**：
+   ```apache
+   RewriteEngine On
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteRule ^(.*)$ index.html [L]
+   ```
+   
+   **Nginx配置**：
+   ```nginx
+   location / {
+       try_files $uri $uri/ /index.html;
+   }
+   ```
+   
+   **WordPress环境（子目录部署）**：
+   如果在WordPress环境中部署，需要将项目文件放在子目录（如 `t` 目录），然后在WordPress根目录的 `.htaccess` 文件中添加：
+   ```apache
+   # 短链接系统规则（添加在WordPress规则之前）
+   RewriteRule ^t/(.*)$ t/index.html [L]
+   ```
+   注意：将 `t` 替换为你的实际目录名，并备份原有的 `.htaccess` 文件。
+   
+   **方式C：使用404.html（兜底方案）**
+   - 如果以上方式都不适用
+   - 添加404.html文件到根目录
+   - 适用于不支持SPA路由的传统主机
 
-**WordPress多站点网络配置：**
-```apache
-RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase /
+4. **访问短链接**
+   - 访问：`https://yourdomain.com/短链接`
+   - 例如：`https://example.com/abc`
 
-# 短链接系统规则（添加在WordPress规则之前）
-# 如果请求的是t目录下的具体文件，直接访问
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteCond %{REQUEST_URI} ^/t/
-RewriteRule ^.*$ - [L]
+### 标准部署说明
+- **最佳选择**：现代托管服务（4个文件，零配置）
+- **传统服务器**：需要配置URL重写规则
+- **兜底方案**：添加404.html（5个文件，适用于任何环境）
+- **建议**：先尝试直接上传4个文件，如果短链接无法访问再考虑其他方式
 
-# 如果请求的是t目录下的目录，直接访问
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteCond %{REQUEST_URI} ^/t/
-RewriteRule ^.*$ - [L]
+---
 
-# 对于t目录下的其他请求（短链接），重定向到t/index.html
-RewriteRule ^t/(.*)$ t/index.html [L]
+## 🌐 GitHub Pages 部署
 
-# 以下是原有的WordPress多站点规则
-RewriteRule ^index\.php$ - [L]
+### 特点
+- ✅ 免费托管
+- ✅ 自动HTTPS
+- ✅ 支持自定义域名
+- ✅ 支持404重定向
+- ✅ CDN加速
 
-# add a trailing slash to /wp-admin
-RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ $1wp-admin/ [R=301,L]
+### 部署步骤
 
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]
-RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ $2 [L]
-RewriteRule . index.php [L]
-```
+1. **创建GitHub仓库**
+   - 登录GitHub，创建新仓库（如：`sus`）
+   - 可以选择公开或私有仓库
 
-**⚠️ 重要提示：**
-- 短链接规则必须放在WordPress规则之前
-- 将 `t` 替换为你的实际目录名
-- 备份原有的 `.htaccess` 文件
+2. **上传项目文件**
+   将以下文件上传到仓库根目录：
+   ```
+   ├── index.html      # 主页面
+   ├── script.js       # 核心逻辑
+   ├── style.css       # 样式文件
+   ├── links.txt       # 链接映射文件
+   └── 404.html        # 404处理（必需）
+   ```
+
+3. **启用GitHub Pages**
+   - 进入仓库设置（Settings）
+   - 找到"Pages"选项
+   - 选择"Deploy from a branch"
+   - 源分支选择"main"或"master"
+   - 目录选择"/ (root)"
+   - 点击"Save"
+
+4. **配置短链接**
+   - 编辑`links.txt`文件，添加你的短链接映射
+   - 提交更改，GitHub Pages会自动更新
+
+5. **访问短链接**
+   - 部署完成后，访问：`https://用户名.github.io/仓库名/短链接`
+   - 例如：`https://jiang068.github.io/sus/abc`
+
+### GitHub Pages环境说明
+- 系统会自动检测GitHub Pages环境
+- 支持子路径部署（如：`/sus/`）
+- 404.html文件必需，用于处理动态路由
+
+---
 
 ### 2. 配置链接映射
 
@@ -92,11 +146,14 @@ gi,https://example.com/very-long-url
 
 ### 3. 访问短链接
 
-**标准部署（根目录）：**
-- 访问 `https://yourdomain.com/` 进入主页，系统会自动处理短链接
+**标准服务器部署：**
+- `https://yourdomain.com/短链接` → 跳转到对应链接
 
-**WordPress环境（子目录）：**
-- `https://yourdomain.com/t/abc` → 跳转到对应链接
+**WordPress子目录部署：**
+- `https://yourdomain.com/目录名/短链接` → 跳转到对应链接
+
+**GitHub Pages部署：**
+- `https://用户名.github.io/仓库名/短链接` → 跳转到对应链接
 
 ## 📖 使用说明
 
@@ -172,12 +229,12 @@ createErrorPage("被你玩坏了！去找我主人！");    // 服务器错误
 3. **维护**：定期检查和清理无效的链接映射
 4. **备份**：建议定期备份链接映射文件
 
-### WordPress环境特殊注意事项
-1. **规则顺序**：短链接重写规则必须放在WordPress规则之前
-2. **缓存清理**：修改 `.htaccess` 后需要清除WordPress缓存
+### 服务器配置注意事项
+1. **规则顺序**：短链接重写规则必须放在其他规则之前（如WordPress规则）
+2. **缓存清理**：修改配置文件后需要清除缓存
 3. **权限检查**：确保项目目录有正确的读取权限
 4. **插件冲突**：某些缓存或SEO插件可能影响重写规则
-5. **多站点网络**：使用上述完整配置适用于WordPress多站点网络
+5. **备份配置**：修改 `.htaccess` 等配置文件前先备份
 
 ---
 
