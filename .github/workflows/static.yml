@@ -4,6 +4,9 @@ name: Deploy Short Link Service to Pages
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - '*.md'
+      - '*.txt'
   workflow_dispatch:
 
 # GitHub Pages 部署权限

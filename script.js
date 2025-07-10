@@ -217,6 +217,10 @@ function getShortLinkName() {
     const redirectPath = sessionStorage.getItem('sus_redirect_path');
     if (redirectPath) {
         sessionStorage.removeItem('sus_redirect_path');
+        // 恢复原始 URL
+        const basePath = getBasePath();
+        const originalPath = basePath + redirectPath;
+        history.replaceState(null, '', originalPath);
         return redirectPath;
     }
     
